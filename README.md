@@ -33,7 +33,7 @@ Entender como os sistemas distribuídos funcionam é importante para profissiona
 </details>
 
 ## 💯 Projeto 1 - Desenvolvimento
-![](https://geps.dev/progress/5) 
+![](https://geps.dev/progress/15) 
 
 - [X] Criar arquivo em Python (main.py) para o projeto 1
 - [X] Fazer README.md básico do repositório
