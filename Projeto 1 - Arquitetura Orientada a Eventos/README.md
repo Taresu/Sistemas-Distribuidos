@@ -1,12 +1,24 @@
 ## 💯 Projeto 1 - Contextualização e Desenvolvimento
 
-`Discentes` - Luis Carlos e Thales Salata 
+________________________________________________________________
+`Discentes`: 
 
-A ideia foi criar uma aplicação de mensageria no contexto de um restaurante e/ou mercado.
+Luis Carlos, [luisj.1994@alunos.utfpr.edu.br](mailto:luisj.1994@alunos.utfpr.edu.br), 2073099
 
-Serviço: RabbitMQ (Message Broker)
-Protocolo: AQMP (Advanced Message Queuing Protocol)
-Linguagem: Python
+Thales Salata, [tsalata@alunos.utfpr.edu.br](mailto:tsalata@alunos.utfpr.edu.br), 2324911
+
+_________________________________________________________________
+
+A ideia implementada é uma aplicação de mensageria no contexto de um restaurante e/ou mercado.
+
+
+**Serviço**: RabbitMQ (Message Broker)
+
+**Protocolo**: AQMP (Advanced Message Queuing Protocol)
+
+**Linguagem**: Python
+
+_________________________________________________________________
 
 A aplicação se concentra em enviar e receber mensagens entre diferentes partes do sistema, como criadores de mensagens (publishers) e consumidores de mensagens (consumers).
 
@@ -14,7 +26,7 @@ No contexto da Arquitetura Orientada a Eventos, os eventos são gerados e consum
 
 Os eventos são trocados de forma assíncrona, proporcionando desacoplamento entre produtores e consumidores, permitindo escalabilidade e resiliência no sistema. O RabbitMQ é utilizado como o serviço de mensageria, roteando as mensagens para as filas correspondentes (queues), onde os consumidores (consumers) as processam conforme necessário.
 
-Checklist:
+`Checklist`:
 - [X] Criar arquivo em Python para o Projeto 1 - Arquitetura Orientada a Eventos
 - [X] Fazer README.md básico do repositório
 - [ ] Fazer um trecho de código representativo para a contextualização da disciplina, no README
@@ -26,5 +38,6 @@ Checklist:
 - [X] Aprimorar README
 - [ ] Aprimorar lógica dos códigos
 
-Progresso:
+`Progresso`: 
+
 ![](https://geps.dev/progress/85) 
