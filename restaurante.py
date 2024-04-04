@@ -30,25 +30,26 @@ def criacaoPrato(nomePrato, preco):
 
 
 #######################################################################################
-nomeRest = input("Digite o Nome do Restaurante: ")
-criacaoCardapio()
 
-opcao = 0
-while opcao == 0:
-    opcao = input("Digite 1 para enviar novo prato "+"Digite 2 para entrar em uma fila: ")
-    opcao = int(opcao)
-    if opcao == 1:
+opcao = input("Digite 1 para enviar cardapio ou 2 para receber promoções de mercado, ou 'fechar' para sair: ")
+
+if opcao == '1':
+    nomeRest = input("Digite o Nome do Restaurante: ")
+    criacaoCardapio()
+    while True:    
         prato = input("Digite o Nome do Prato: ")
         if prato == "fechar":
             canal.close()
-            exit
+            exit()
         preco = input("Digite o Preço: ")
         if preco == "fechar":
             canal.close()
-            exit
+            exit()   
         criacaoPrato(prato, preco)
-        opcao = 0
-    if opcao == 2:
-        novaqueue = input("Digite o nome da nova fila: ")
+elif opcao == '2':
+        novaqueue = input("Digite o nome do mercado: ")
         entrarEmQueue(novaqueue)
-        opcao = 0
+else:
+    canal.close()
+    exit()
+    
