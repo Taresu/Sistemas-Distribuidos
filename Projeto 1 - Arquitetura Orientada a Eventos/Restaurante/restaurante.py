@@ -1,55 +1,35 @@
 import pika
-import sys
+import time
+import threading
 
-conexao = pika.BlockingConnection(
-    pika.ConnectionParameters('localhost')
-)
+def enviar_pedido(pedido):
+    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    channel = connection.channel()
+    channel.queue_declare(queue='pedidos')
+    channel.basic_publish(exchange='', routing_key='pedidos', body=pedido)
+    print("Pedido enviado:", pedido)
+    connection.close()
 
-canal = conexao.channel()
+def consumir_pedidos():
+    connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+    channel = connection.channel()
+    channel.queue_declare(queue='pedidos')
 
-def callback(ch, method, properties, body):
-    print("Mensagem recebida:", body.decode())
-    
-def criacaoCardapio():
-    canal.exchange_declare(exchange=nomeRest, exchange_type='fanout')
-    message = "Bem vindo ao cardapio do " + nomeRest + "!"
-    canal.basic_publish(exchange=nomeRest, routing_key=nomeRest, body=message)
-    print(f" [x] Sent {message}")
+    def callback(ch, method, properties, body):
+        print("Pedido recebido:", body.decode())
+        time.sleep(5)  # Simulando o tempo de preparo
+        print("Pedido pronto")
+        print("Pedido entregue:", body.decode())
 
-    nomeQueue = "Restaurante " + nomeRest
-    canal.queue_declare(queue=nomeQueue)
-    canal.queue_bind(exchange=nomeRest, queue=nomeQueue)
-    
-def entrarEmQueue(nomefila):
-    canal.basic_consume(queue=nomefila, on_message_callback=callback, auto_ack=True)
-    canal.start_consuming()
+    channel.basic_consume(queue='pedidos', on_message_callback=callback, auto_ack=True)
+    print("Aguardando pedidos...")
+    channel.start_consuming()
+    connection.close()
 
-def criacaoPrato(nomePrato, preco):
-    mensagem = nomePrato + ": R$ " + preco
-    canal.basic_publish(exchange= nomeRest, routing_key=nomeRest, body=mensagem)
+# Enviando pedidos de dois produtores diferentes
+enviar_pedido("Pizza")
+enviar_pedido("Hambúrguer")
 
-
-#######################################################################################
-
-opcao = input("Digite 1 para enviar cardapio ou 2 para receber promoções de mercado, ou 'fechar' para sair: ")
-
-if opcao == '1':
-    nomeRest = input("Digite o Nome do Restaurante: ")
-    criacaoCardapio()
-    while True:    
-        prato = input("Digite o Nome do Prato: ")
-        if prato == "fechar":
-            canal.close()
-            exit()
-        preco = input("Digite o Preço: ")
-        if preco == "fechar":
-            canal.close()
-            exit()   
-        criacaoPrato(prato, preco)
-elif opcao == '2':
-        novaqueue = input("Digite o nome do mercado: ")
-        entrarEmQueue(novaqueue)
-else:
-    canal.close()
-    exit()
-    
+# Criando dois consumidores diferentes para processar os pedidos
+threading.Thread(target=consumir_pedidos).start()
+threading.Thread(target=consumir_pedidos).start()
