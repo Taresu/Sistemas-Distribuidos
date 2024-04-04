@@ -2,6 +2,7 @@
 
 #### `Bacharelado` Sistemas de Informação (BSI)
 #### `Universidade` UTFPR - Universidade Tecnológica Federal do Paraná
+#### `Docente`  Ana Cristina Kochem
 
 _______________________________________________________________________________________________________________________________________________________________________
 
@@ -32,14 +33,8 @@ Entender como os sistemas distribuídos funcionam é importante para profissiona
   ```
 </details>
 
-## 💯 Projeto 1 - Desenvolvimento
-![](https://geps.dev/progress/15) 
-
-- [X] Criar arquivo em Python (main.py) para o projeto 1
-- [X] Fazer README.md básico do repositório
-- [ ] Fazer um trecho de código representativo para o README
-
 ## 🌐 Links interessantes 
 
 - [Rabbit MQ](https://www.rabbitmq.com/)
 - [Rabbit MQ, Python Tutorial 1](https://www.rabbitmq.com/tutorials/tutorial-one-python)
+
