@@ -21,13 +21,13 @@ class MyPyro(object):
 class Node(object):
     def __init__(self, object):
         #status: Candidate, Leader, Follower
-        server = Pyro5.server.Daemon(port = PORTA)
-        self.uriObject = server.register(MyPyro, object)
+        daemon = Pyro5.server.Daemon(port = PORTA)
+        self.uriObject = daemon.register(MyPyro, object)
         print(self.uriObject)
         self.status = FOLLOWER
         while(True):
             self.election()
-            # server.requestLoop()
+            # daemon.requestLoop()
         
     def requestVote(self, uri):
         #Pede voto diretamente com URI pelo proxy
