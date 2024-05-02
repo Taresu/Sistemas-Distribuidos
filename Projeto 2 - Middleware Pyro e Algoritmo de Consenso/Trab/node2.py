@@ -2,6 +2,7 @@ import sys
 import Pyro5.api
 import time
 import random
+from threading import Thread
 
 FOLLOWER = 1
 CANDIDATE = 2
@@ -10,21 +11,36 @@ PORTA = 40984
 
 OBJECTID = "ObjetoNode2"
 NODE1 = "PYRO:ObjetoNode1@localhost:40983"
-
-@Pyro5.api.expose    
-class MyPyro(object):
-    def vote(x):
-        return 1
-    pass 
+RANDMIN = 10
+RAMDMAX = 10
 
 class Node(object):
+    @Pyro5.api.expose    
+    class MyPyro(object):
+        def vote(x):
+            if node.votou:
+                return 0
+            else:
+                node.votou = True
+                return 1
+        pass 
+    
+    class ThreadReqLoop(Thread):
+        def __init__ (self, daemon): 
+            Thread.__init__(self)
+            self.daemon = daemon 
+        def run(self):
+            self.daemon.requestLoop()  
+    
     def __init__(self, object):
         #status: Candidate, Leader, Follower
         self.daemon = Pyro5.server.Daemon(port = PORTA)
-        self.uriObject = self.daemon.register(MyPyro, object)
+        self.uriObject = self.daemon.register(self.MyPyro, object)
         print(self.uriObject)
         self.status = FOLLOWER
+        self.votou = False        
         
+    
         
     def requestVote(self, uri):
         #Pede voto diretamente com URI pelo proxy
@@ -34,14 +50,15 @@ class Node(object):
             
     def election(self):
         if self.status == FOLLOWER:
-            randTime = random.randint(5, 10)  
-            print(str(randTime) + " segundos Sleeping...") 
+            threadLoop = self.ThreadReqLoop(self.daemon)
+            threadLoop.start()
+            randTime = random.randint(RANDMIN, RAMDMAX)  
+            print(str(randTime) + "segundos Sleeping...") 
             time.sleep(randTime)
-            noAns = False
-            if (noAns):
-                self.status = CANDIDATE
+            if (self.votou):
+                self.votou = False
             else:
-                self.daemon.requestLoop()
+                self.status = CANDIDATE 
                 
         elif self.status == CANDIDATE:
             votes = 0

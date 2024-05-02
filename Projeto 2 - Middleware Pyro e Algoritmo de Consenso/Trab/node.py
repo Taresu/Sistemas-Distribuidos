@@ -2,6 +2,7 @@ import sys
 import Pyro5.api
 import time
 import random
+from threading import Thread
 
 FOLLOWER = 1
 CANDIDATE = 2
@@ -10,21 +11,34 @@ PORTA = 40983
 
 OBJECTID = "ObjetoNode1"
 NODE2 = "PYRO:ObjetoNode2@localhost:40984"
-
-
-@Pyro5.api.expose    
-class MyPyro(object):
-    def vote(x):
-        return 1
-    pass 
+RANDMIN = 3
+RAMDMAX = 3
 
 class Node(object):
+    @Pyro5.api.expose    
+    class MyPyro(object):
+        def vote(self):
+            if self.votou:
+                return 0
+            else:
+                self.votou = True
+                return 1
+        pass 
+    
+    class ThreadReqLoop(Thread):
+        def __init__ (self, daemon): 
+            Thread.__init__(self)
+            self.daemon = daemon 
+        def run(self):
+            self.daemon.requestLoop() 
+
     def __init__(self, object):
         #status: Candidate, Leader, Follower
-        daemon = Pyro5.server.Daemon(port = PORTA)
-        self.uriObject = daemon.register(MyPyro, object)
+        self.daemon = Pyro5.server.Daemon(port = PORTA)
+        self.uriObject = self.daemon.register(self.MyPyro, object)
         print(self.uriObject)
         self.status = FOLLOWER
+        self.votou = False
             # daemon.requestLoop()
         
     def requestVote(self, uri):
@@ -36,12 +50,14 @@ class Node(object):
             
     def election(self):
         if self.status == FOLLOWER:
-            randTime = random.randint(5, 10)  
+            threadLoop = self.ThreadReqLoop(self.daemon)
+            threadLoop.start()
+            randTime = random.randint(RANDMIN, RAMDMAX)  
             print(str(randTime) + "segundos Sleeping...") 
             time.sleep(randTime)
-            noAns = True
-            if (noAns):
-                self.status = CANDIDATE
+            # threadLoop.join()
+            if (self.votou == False):
+                self.status = CANDIDATE  
                 
         elif self.status == CANDIDATE:
             votes = 0
@@ -52,9 +68,7 @@ class Node(object):
         else:
             servidor_nomes = Pyro5.core.locate_ns(port=40982)
             print("node1 lider")
-            servidor_nomes.register("Leader", self.uriObject)
-    
-       
+            servidor_nomes.register("Leader", self.uriObject)      
             
 node = Node(OBJECTID)
 while(True):
