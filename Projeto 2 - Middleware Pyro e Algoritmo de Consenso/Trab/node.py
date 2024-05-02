@@ -9,12 +9,12 @@ LEADER = 3
 PORTA = 40983
 
 OBJECTID = "ObjetoNode1"
-NODE2 = "PYRO:ObjetoNode2@localhost:" + str(PORTA)
+NODE2 = "PYRO:ObjetoNode2@localhost:40984"
 
 
 @Pyro5.api.expose    
 class MyPyro(object):
-    def vote():
+    def vote(x):
         return 1
     pass 
 
@@ -25,15 +25,13 @@ class Node(object):
         self.uriObject = daemon.register(MyPyro, object)
         print(self.uriObject)
         self.status = FOLLOWER
-        while(True):
-            self.election()
             # daemon.requestLoop()
         
     def requestVote(self, uri):
         #Pede voto diretamente com URI pelo proxy
         objectDest = Pyro5.api.Proxy(uri)
         print(objectDest)
-        objectDest.vote()
+        return objectDest.vote()
     pass
             
     def election(self):
@@ -48,7 +46,7 @@ class Node(object):
         elif self.status == CANDIDATE:
             votes = 0
             votes = votes + self.requestVote(NODE2)
-            print("Quantidade de votos:" + votes)
+            print("Quantidade de votos:" + str(votes))
             if (votes == 1):
                 self.status = LEADER
         else:
@@ -59,6 +57,8 @@ class Node(object):
        
             
 node = Node(OBJECTID)
+while(True):
+    node.election()
 # def main(objectId):
 #     server = Pyro5.server.Daemon(PORTA)
 #     uriObject = server.register(MyPyro, objectId)

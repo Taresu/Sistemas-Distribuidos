@@ -6,27 +6,25 @@ import random
 FOLLOWER = 1
 CANDIDATE = 2
 LEADER = 3
-PORTA = 40983
+PORTA = 40984
 
 OBJECTID = "ObjetoNode2"
-NODE1 = "PYRO:ObjetoNode1@localhost:" + str(PORTA)
+NODE1 = "PYRO:ObjetoNode1@localhost:40983"
 
 @Pyro5.api.expose    
 class MyPyro(object):
-    def vote():
+    def vote(x):
         return 1
     pass 
 
 class Node(object):
     def __init__(self, object):
         #status: Candidate, Leader, Follower
-        daemon = Pyro5.server.Daemon(port = PORTA)
-        self.uriObject = daemon.register(MyPyro, object)
+        self.daemon = Pyro5.server.Daemon(port = PORTA)
+        self.uriObject = self.daemon.register(MyPyro, object)
         print(self.uriObject)
         self.status = FOLLOWER
-        while(True):
-            self.election()
-            daemon.requestLoop()
+        
         
     def requestVote(self, uri):
         #Pede voto diretamente com URI pelo proxy
@@ -42,6 +40,8 @@ class Node(object):
             noAns = False
             if (noAns):
                 self.status = CANDIDATE
+            else:
+                self.daemon.requestLoop()
                 
         elif self.status == CANDIDATE:
             votes = 0
@@ -54,7 +54,9 @@ class Node(object):
             print("node1 lider")
             servidor_nomes.register("Leader", self.uriObject)
 
-node = Node(OBJECTID)            
+node = Node(OBJECTID)         
+while(True):
+    node.election()   
 # def main(objectId):
 #     server = Pyro5.server.Daemon(PORTA)
 #     uriObject = server.register(MyPyro, objectId)
