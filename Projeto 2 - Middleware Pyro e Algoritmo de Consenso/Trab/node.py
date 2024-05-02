@@ -50,7 +50,7 @@ class Node(object):
             if (votes == 1):
                 self.status = LEADER
         else:
-            servidor_nomes = Pyro5.core.locate_ns()
+            servidor_nomes = Pyro5.core.locate_ns(port=40982)
             print("node1 lider")
             servidor_nomes.register("Leader", self.uriObject)
     
