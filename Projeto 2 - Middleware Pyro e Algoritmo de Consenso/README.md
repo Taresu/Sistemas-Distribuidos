@@ -65,4 +65,4 @@ Este projeto demonstra como implementar um sistema distribuído utilizando o Alg
 - [ ] O líder transmitirá mensagens periódicas para todos os seguidores para manter sua autoridade e prevenir novas eleições.
 
 `Progresso`: 
-![](https://geps.dev/progress/75) 
+![](https://geps.dev/progress/85) 
