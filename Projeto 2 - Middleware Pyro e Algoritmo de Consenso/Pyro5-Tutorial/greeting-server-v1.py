@@ -8,7 +8,7 @@ class GreetingMaker(object):
         return "Hello, {0}. Here is your fortune message:\n" \
             "Behold the warranty -- the bold print giveth and the fine print taketh away.".format(name)
 
-daemon = Pyro5.api.Daemon()             # make a Pyro daemon
+daemon = Pyro5.api.Daemon()             # make a Pyro daemon (server)
 uri = daemon.register(GreetingMaker)    # register the greeting maker as a Pyro object
 
 print("Ready. Object uri =", uri)       # print the uri so we can use it in the client later

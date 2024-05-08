@@ -1,17 +1,18 @@
-import sys
-import Pyro5.api
-import time
 import random
+import sys
+import time
+
+import Pyro5.api
 
 FOLLOWER = 1
 CANDIDATE = 2
 LEADER = 3
-PORTA = 40983
+PORTA_NODE1 = 40988
 
 OBJECTID = "ObjetoNode2"
-NODE1 = "PYRO:ObjetoNode1@localhost:" + str(PORTA)
+NODE1 = "PYRO:ObjetoNode1@localhost:" + str(PORTA_NODE1)
 
-@Pyro5.api.expose    
+@Pyro5.api.expose
 class MyPyro(object):
     def vote():
         return 1
@@ -20,7 +21,7 @@ class MyPyro(object):
 class Node(object):
     def __init__(self, object):
         #status: Candidate, Leader, Follower
-        daemon = Pyro5.server.Daemon(port = PORTA)
+        daemon = Pyro5.server.Daemon(port = PORTA_NODE1)
         self.uriObject = daemon.register(MyPyro, object)
         print(self.uriObject)
         self.status = FOLLOWER
@@ -54,7 +55,7 @@ class Node(object):
             print("node1 lider")
             servidor_nomes.register("Leader", self.uriObject)
 
-node = Node(OBJECTID)            
+node = Node(OBJECTID)
 # def main(objectId):
 #     server = Pyro5.server.Daemon(PORTA)
 #     uriObject = server.register(MyPyro, objectId)
