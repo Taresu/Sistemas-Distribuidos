@@ -18,24 +18,24 @@ O projeto implementa um sistema distribuído utilizando o algoritmo de consenso 
 
 _________________________________________________________________
 
-Os processos se comunicam através do middleware Pyro (versão 5) e são compostos por 4 servidores e um cliente. 
+Os processos se comunicam através do middleware Pyro e são compostos por quatro servidores e um cliente. 
 
 O sistema consiste em três principais componentes: eleição de líder, replicação de log e comunicação cliente-servidor.
 
-Eleição de Líder:
+**Eleição de Líder**:
 
 - Os processos iniciam como seguidores e podem se tornar candidatos para liderar.
 - Temporizadores de eleição aleatórios são utilizados para evitar a eleição simultânea de múltiplos líderes.
 - Quando um líder falha, outro processo é eleito para liderar.
 
-Replicação de Log:
+**Replicação de Log**:
 
 - O cliente busca o URI do líder no servidor de nomes Pyro.
 - O cliente envia comandos ao líder, que os anexa ao seu log e replica aos seguidores.
 - Uma entrada no log só é efetivada se a maioria dos seguidores a confirmar em seus logs.
 - O líder transmite mensagens periódicas aos seguidores para manter sua autoridade e prevenir novas eleições.
 
-Comunicação Cliente-Servidor:
+**Comunicação Cliente-Servidor**:
 
 - O cliente se conecta aos servidores Pyro disponíveis.
 - O cliente envia comandos ao líder para serem registrados no log e replicados.
