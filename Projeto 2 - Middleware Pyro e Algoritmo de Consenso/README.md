@@ -47,14 +47,14 @@ Este projeto demonstra como implementar um sistema distribuído utilizando o Alg
 - [X] Fazer README.md básico do repositório
 
 `Checklist - Inicialização dos Processos`
-- [X] Inicialização do servidor de nomes do Pyro;
-- [X] Inicialização dos 4 processos que implementam o Raft como seguidores;
+- [X] Inicializar do servidor de nomes do Pyro;
+- [X] Inicializar 4 processos que implementam o Raft como seguidores;
 - [X] Informar uma porta ao criar o Daemon e um objectId no registro do objeto com o Daemon. Com essas duas informações, teremos o URI "PYRO:objectId@localhost:porta" de cada objeto Pyro e poderemos deixá-los hard coded;
-- [X] Inicialização do processo cliente responsável por encaminhar comandos ao líder.
+- [X] Inicializar processo cliente responsável por encaminhar comandos ao líder.
 
 `Checklist - Eleição`
 - [X] Um dos processos será eleito líder;
-- [X] Utilizem temporizadores de eleição aleatórios para evitar que os nós se tornem candidatos ao mesmo tempo;
+- [X] Utilizar temporizadores de eleição aleatórios para evitar que os nós se tornem candidatos ao mesmo tempo;
 - [X] Quando um líder falhar, um outro processo será eleito como líder.
 
 `Checklist - Replicação`
