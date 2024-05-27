@@ -69,15 +69,12 @@ class Node(object):
             
     def election(self):
         if self.status == FOLLOWER:
-<<<<<<< HEAD
             randTime = random.randint(5, 10)
             print(str(randTime) + "segundos Sleeping...")
-=======
             threadLoop = self.ThreadReqLoop(self.daemon)
             threadLoop.start()
             randTime = random.randint(RANDMIN, RAMDMAX)  
             print(str(randTime) + "segundos Sleeping...") 
->>>>>>> refs/remotes/origin/main
             time.sleep(randTime)
             # threadLoop.join()
             if (self.votou == False):
