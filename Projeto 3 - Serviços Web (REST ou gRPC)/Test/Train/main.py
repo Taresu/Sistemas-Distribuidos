@@ -1,4 +1,5 @@
 import pandas as pd
+from flask import Flask
 
 tabela = pd.read_csv('Projeto 3 - Serviços Web (REST ou gRPC)/Train/advertising.csv')
 
