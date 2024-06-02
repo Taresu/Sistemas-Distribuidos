@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from models import Livro, db
-
+from flask_cors import CORS
 
 app = Flask(__name__)
 
@@ -9,6 +9,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:utfpr@localhost:5432/biblioteca'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Para desabilitar um aviso desnecessário
 db.init_app(app)
+CORS(app)
 
 # Rota para cadastrar um novo livro
 @app.route('/livros', methods=['POST'])
