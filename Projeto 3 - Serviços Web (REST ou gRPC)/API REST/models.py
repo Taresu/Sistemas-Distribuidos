@@ -1,9 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
 
-# Criando a instância do SQLAlchemy
 db = SQLAlchemy()
 
-# Definindo o modelo da tabela 'livros'
+# tabela 'livros'
 class Livro(db.Model):
     __tablename__ = 'livros'
 
@@ -12,7 +11,7 @@ class Livro(db.Model):
     autor = db.Column(db.String(30), nullable=False)
     editora = db.Column(db.String(30), nullable=False)
 
-# Definindo o modelo da tabela 'usuarios'
+# tabela 'usuarios'
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
 
