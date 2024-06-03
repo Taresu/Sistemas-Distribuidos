@@ -52,7 +52,7 @@ Para usar o PostgreSQL:
 OBS: é interessante utilizar o Postman para testar as querys. É preciso instalar o Postman Desktop para o reconhecimento do banco de dados local.
 
 Glossário:
-- API REST (RESTful) - interface de programação de aplicações de transferência de estados representacional. Utiliza os princípios e operações CRUD (Create, Read, Update, Delete) e os métodos GET, POST, PUT, DELETE. 
+- API REST (RESTful) - interface de programação de aplicações de transferência de estados representacional. Utiliza os princípios e operações CRUD (Create, Read, Update, Delete) e os métodos GET, POST, PUT, DELETE.
 - Flask - é um pequeno framework (microframework) web escrito em Python que não requer ferramentas ou bibliotecas particulares
 - PostgreSQL - sistema gerenciador de banco de dados objeto relacional (SGBD)
 - SSE - conjunto de serviços de segurança em uma arquitetura SASE (independente da plataforma, permitindo a infraestrutura de segurança mais flexível possível).
