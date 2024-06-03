@@ -3,7 +3,7 @@ from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from models import Livro, db
+from models import Livro, Usuario, db
 
 app = Flask(__name__)
 
@@ -64,6 +64,50 @@ def obter_livros():
     except Exception as e:
         return jsonify({'mensagem': f'Erro ao obter livros: {str(e)}'}), 500
 
+@app.route('/livros/<int:id>', methods=['PUT']) #Não está funcionando corretamente
+def atualizar_livro(id):
+    dados = request.get_json()
+    try:
+        livro = Livro.query.get(id)
+        if not livro:
+            return jsonify({'mensagem': 'Livro não encontrado.'}), 404
+
+        livro.titulo = dados.get('titulo', livro.titulo)
+        livro.autor = dados.get('autor', livro.autor)
+        livro.editora = dados.get('editora', livro.editora)
+        db.session.commit()
+        return jsonify({'mensagem': 'Livro atualizado com sucesso!'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'mensagem': f'Erro ao atualizar livro: {str(e)}'}), 500
+
+@app.route('/livros/<int:id>', methods=['DELETE'])
+def deletar_livro(id):
+    try:
+        livro = Livro.query.get(id)
+        if not livro:
+            return jsonify({'mensagem': 'Livro não encontrado.'}), 404
+
+        db.session.delete(livro)
+        db.session.commit()
+        return jsonify({'mensagem': 'Livro deletado com sucesso!'}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({'mensagem': f'Erro ao deletar livro: {str(e)}'}), 500
+
+@app.route('/usuarios', methods=['GET'])
+def obter_usuarios():
+    try:
+        usuarios = Usuario.query.all()
+        # Converte os objetos Livro em lista de dicionários
+        usuarios_json = [{'id': usu.id, 'titulo': usu.titulo, 'autor': usu.autor, 'editora': usu.editora} for usu in usuarios]
+        usuarios_str = str(usuarios_json)
+        signature = sign_message(usuarios_str)
+        print("Mensagem:", usuarios_str)
+        print("Assinatura:", signature)        
+        return jsonify({'usuarios': usuarios_json, 'signature': signature}), 200
+    except Exception as e:
+        return jsonify({'mensagem': f'Erro ao obter usuarios: {str(e)}'}), 500
 
 @app.route('/public_key', methods=['GET'])
 def get_public_key():
