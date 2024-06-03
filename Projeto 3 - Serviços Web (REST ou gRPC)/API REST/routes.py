@@ -1,10 +1,9 @@
-from flask import Flask, jsonify, request
-from models import Livro, db
-from flask_cors import CORS
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
-from cryptography.hazmat.primitives import hashes, serialization
-from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.exceptions import InvalidSignature
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+from models import Livro, db
 
 app = Flask(__name__)
 
@@ -14,6 +13,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Para desabilitar um avis
 db.init_app(app)
 CORS(app)
 
+# Gerando o par de chaves para a criptografia assimétrica
 private_key = rsa.generate_private_key(
     public_exponent=65537,
     key_size=2048,
