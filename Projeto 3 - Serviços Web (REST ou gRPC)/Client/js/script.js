@@ -4,47 +4,54 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('livro-form');
     const listaLivros = document.getElementById('lista-livros');
 
-    form.addEventListener('submit', (event) => {
+    form.addEventListener('submit', async(event) => {
         event.preventDefault();
-        
+
         const titulo = document.getElementById('titulo').value;
         const autor = document.getElementById('autor').value;
         const editora = document.getElementById('editora').value;
 
         var urlFunction = url + '/livros';
-        try{
-            const response = fetch(urlFunction, {
+        try {
+            const response = await fetch(urlFunction, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ titulo, autor, editora })
             });
-            const data = response.json();
+            const data = await response.json();
             if (data.mensagem === 'Livro cadastrado com sucesso!') {
                 alert(data.mensagem);
                 carregarLivros(); // Atualiza a lista de livros
             } else {
                 alert('Erro: ' + data.mensagem);
             }
+        } catch (error) {
+            console.error('Erro Cadastrar Livros:', error);
         }
-        catch(error) {console.error('Erro Cadastrar Livros:', error);}
     });
 
     async function carregarLivros() {
-
         var urlFunction = url + '/livros';
         try {
             const response = await fetch(urlFunction);
             const data = await response.json();
-            listaLivros.innerHTML = '';
-            data.forEach(livro => {
-                const li = document.createElement('li');
-                li.textContent = `${livro.titulo} - ${livro.autor} (${livro.editora})`;
-                listaLivros.appendChild(li);
-            })
+
+            // Verifique se 'data' é um array
+            if (Array.isArray(data)) {
+                listaLivros.innerHTML = '';
+                data.forEach(livro => {
+                    const li = document.createElement('li');
+                    li.textContent = `${livro.titulo} - ${livro.autor} (${livro.editora})`;
+                    listaLivros.appendChild(li);
+                });
+            } else {
+                console.error('Erro: a resposta não é um array.', data);
+            }
+        } catch (error) {
+            console.error('Erro carregar Livros:', error);
         }
-        catch(error) {console.error('Erro carregar Livros:', error)};
     }
 
     // Carrega os livros ao iniciar a página
