@@ -8,7 +8,7 @@ from models import Livro, db
 app = Flask(__name__)
 
 # Banco de dados para a aplicação
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:utfpr@localhost:5432/biblioteca'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost:5432/Biblioteca'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Para desabilitar um aviso desnecessário
 db.init_app(app)
 CORS(app)
@@ -72,7 +72,6 @@ def get_public_key():
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
     return jsonify({'public_key': public_pem.decode()}), 200
-
 
 if __name__ == '__main__':
     app.run(debug=True)

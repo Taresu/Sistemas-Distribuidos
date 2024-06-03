@@ -3,7 +3,7 @@ import psycopg2
 # PostgreSQL
 DB_NAME = "biblioteca"
 DB_USER = "postgres"
-DB_PASSWORD = "utfpr"
+DB_PASSWORD = "postgres"
 DB_HOST = "localhost"
 DB_PORT = 5432
 
