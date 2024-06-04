@@ -1,19 +1,19 @@
+import psycopg2
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
-from flask_sse import sse
 from flask import Flask, Response, jsonify, request
 from flask_cors import CORS
+from flask_sse import sse
 from models import Livro, Usuario, db
-import psycopg2
 
 app = Flask(__name__)
 
 app.config['REDIS_URL'] = 'redis://localhost:6379/0'
 app.register_blueprint(sse, url_prefix='/stream')
 # Banco de dados para a aplicação
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:utfpr@localhost:5432/biblioteca'
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost:5432/Biblioteca'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:utfpr@localhost:5432/biblioteca'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost:5432/Biblioteca'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # Para desabilitar um aviso desnecessário
 db.init_app(app)    
 CORS(app)
@@ -62,7 +62,7 @@ def cadastrar_livro():
     try:
         db.session.add(novo_livro)
         db.session.commit()
-        sse.publish({"message": "Novo livro adicionado"}, type='book')
+        #sse.publish({"message": "Novo livro adicionado"}, type='book')
         return jsonify({'mensagem': 'Livro cadastrado com sucesso!'}), 201
     except Exception as e:
         db.session.rollback()

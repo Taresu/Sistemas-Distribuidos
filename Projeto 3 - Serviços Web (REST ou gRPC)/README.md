@@ -18,6 +18,10 @@ Dependências do projeto:
 - PostgreSQL & pgadmin4
   - sudo apt install postgresql postgresql-contrib
   - pip install https://ftp.postgresql.org/pub/pgadmin/pgadmin4/v8.7/pip/pgadmin4-8.7-py3-none-any.whl
+- Redis
+  - sudo service redis-server start
+  - redis-cli
+  - ping
 
 Passos de execução da aplicação:
 1. Iniciar o flask (dentro do ambiente virtual de 'API REST') - porta 5000
