@@ -4,26 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biblioteca</title>
+    <title>Login - Biblioteca</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
-    <h1>Biblioteca - Edição do Banco</h1>
-
-    <h2>Cadastrar Livro</h2>
-
-    <form id="livro-form">
-        <input type="text" id="titulo" placeholder="Título" required>
-        <input type="text" id="autor" placeholder="Autor" required>
-        <input type="text" id="editora" placeholder="Editora" required>
-        <button type="submit">Cadastrar Livro</button>
+    <h1>Login - Biblioteca</h1>
+    <form id="login-form">
+        <input type="text" id="username" placeholder="Nome de Usuário" required>
+        <input type="password" id="password" placeholder="Senha" required>
+        <button type="submit">Login</button>
     </form>
-
-    <h2>Lista de Livros</h2>
-    <ul id="lista-livros"></ul>
-
-    <script src='js/script.js'></script>
+    <script src="https://cdn.jsdelivr.net/npm/node-forge/dist/forge.min.js"></script>
+    <script src="js/script.js"></script>
 </body>
 
 </html>

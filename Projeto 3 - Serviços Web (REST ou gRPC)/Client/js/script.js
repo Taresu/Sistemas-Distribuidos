@@ -57,3 +57,61 @@ document.addEventListener('DOMContentLoaded', () => {
     // Carrega os livros ao iniciar a página
     carregarLivros();
 });
+
+// --------------- PARTE DA AUTENTICAÇÃO
+
+document.getElementById('login-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    // Simular um desafio do servidor
+    const challenge = '123456';
+
+    // Função para simular a assinatura do desafio
+    function signChallenge(challenge, privateKeyPem) {
+        const privateKey = forge.pki.privateKeyFromPem(privateKeyPem);
+        const md = forge.md.sha256.create();
+        md.update(challenge, 'utf8');
+        return forge.util.encode64(privateKey.sign(md));
+    }
+
+    // Simular a recuperação da chave privada do usuário (aqui simplificado para demonstração)
+    let privateKeyPem;
+    if (username === 'bibliotecario') {
+        privateKeyPem = `-----BEGIN RSA PRIVATE KEY-----
+... // Your librarian private key here
+-----END RSA PRIVATE KEY-----`;
+    } else if (username === 'cliente') {
+        privateKeyPem = `-----BEGIN RSA PRIVATE KEY-----
+... // Your client private key here
+-----END RSA PRIVATE KEY-----`;
+    } else {
+        alert('Usuário não encontrado');
+        return;
+    }
+
+    // Assinar o desafio
+    const signature = signChallenge(challenge, privateKeyPem);
+
+    // Enviar a assinatura para o servidor
+    fetch('/authenticate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ username, challenge, signature })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.redirectUrl) {
+                window.location.href = data.redirectUrl;
+            } else {
+                alert('Falha na autenticação');
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+        });
+});

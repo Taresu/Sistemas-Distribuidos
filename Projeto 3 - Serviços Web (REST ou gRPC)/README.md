@@ -23,6 +23,8 @@ Dependências do projeto:
   - redis-cli
   - ping
   - curl http://localhost:5000/stream (novo terminal)
+- Node-forge
+  - npm install node-forge
 
 Passos de execução da aplicação:
 1. Iniciar o flask (dentro do ambiente virtual de 'API REST') - porta 5000
