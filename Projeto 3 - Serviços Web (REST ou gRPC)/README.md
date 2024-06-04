@@ -22,6 +22,7 @@ Dependências do projeto:
   - sudo service redis-server start
   - redis-cli
   - ping
+  - curl http://localhost:5000/stream (novo terminal)
 
 Passos de execução da aplicação:
 1. Iniciar o flask (dentro do ambiente virtual de 'API REST') - porta 5000
