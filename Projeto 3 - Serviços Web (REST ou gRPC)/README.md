@@ -3,7 +3,7 @@ O Projeto 3 é uma aplicação web com métodos de inserção, consulta, atualiz
 A aplicação provê a comunicação entre cliente e servidor, sendo definida da seguinte forma:
 
 1. Back-end: Python, PostgreSQL (p/ o banco de dados), SSE (p/ envio de notificações)
-2. Front-end: Flask
+2. Front-end: Flask e Express
 
 Dependências do projeto:
 - Python3
@@ -30,7 +30,7 @@ Passos de execução da aplicação:
 2. Iniciar o pgadmin (dentro do ambiente virtual de 'API REST') - porta 5050
    - cd 'Projeto 3 - Serviços Web (REST ou gRPC)/API REST'
    - source venv/bin/activate
-   - python3 venv/lib/python3.10/site-packages/pgadmin4/pgadmin4.py
+   - python3 venv/lib/python3.10/site-packages/pgadmin4/pgAdmin4.py
    - http://127.0.0.1/5050
 3. Testar queries com Postman
 4. Executar o cliente da aplicação e testar queries - porta 3000
