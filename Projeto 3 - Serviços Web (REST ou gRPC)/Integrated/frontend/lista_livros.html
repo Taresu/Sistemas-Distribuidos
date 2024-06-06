@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Livros</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            background: linear-gradient(to bottom, #8e44ad, #3498db);
+        }
+        
+        .debug-panel {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 300px;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 20px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        
+        .debug-panel h2 {
+            margin-top: 0;
+        }
+        
+        .debug-panel p {
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+        
+        .back-button {
+            margin-top: 20px;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #f31f1f;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .back-button:hover {
+            background-color: #4cae4c;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Lista de Livros - Biblioteca </h1>
+    <img src="images/livros.png" alt="Imagem representativa de uma lista de livros" style="width: 100%; max-width: 150px;">
+    <div class="debug-panel" id="debug-panel">
+        <h2>Debug Panel</h2>
+    </div>
+    <h1> Livros Disponíveis </h1>
+    <ul id="lista-livros"></ul>
+    <a href="index.html" class="back-button">Voltar</a>
+    <script src="js/load_books.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const listaLivros = document.getElementById('lista-livros');
+
+            async function carregarLivros() {
+                try {
+                    const response = await fetch('http://localhost:3500/livros');
+                    const data = await response.json();
+                    // Verifique se 'data' é um array
+                    if (Array.isArray(data)) {
+                        listaLivros.innerHTML = '';
+                        data.forEach(livro => {
+                            const li = document.createElement('li');
+                            li.textContent = `${livro.titulo} - ${livro.autor} (${livro.editora}) `;
+                            listaLivros.appendChild(li);
+                        });
+                    } else {
+                        console.error('Erro: a resposta não é um array.', data);
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar livros:', error);
+                }
+            }
+
+            // Carrega os livros ao iniciar a página
+            carregarLivros();
+        });
+    </script>
+</body>
+
+</html>

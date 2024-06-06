@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Biblioteca</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            background: linear-gradient(to bottom, #2c3e50, #3498db);
+        }
+        
+        .http-messages {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 300px;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 20px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        
+        .http-messages h2 {
+            margin-top: 0;
+        }
+        
+        .http-messages p {
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+
+<body>
+    <h1> Biblioteca X-Scripting </h1>
+    <p>A biblioteca mais distribuída e perigosa da região!</p>
+    <p> ⠀⢀⠎⠉⠂⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀⠔⠉⠑⡀⠀ ⡎⠁⠀⠀⠣⡀⠀⢀⡀⠔⠒⠉⠉⠀⠀⠀⠀⠈⠉⠐⠢⢄⡀⠀⢀⠜⠀⠀⠀⢱ ⠈⠂⠉⠢⡀⠈⠲⣍⠀⠀⣀⠤⠒⠂⠉⠉⠑⠒⠤⣄⠀⠀⣨⠖⠁⢀⠔⠉⠀⠁ ⠀⠀⠀⠀⡸⢦⡀⠈⡳⠊⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢾⡁⢀⡴⢇⠀⠀⠀⠀ ⠀⠀⠀⢰⠁⠀⢙⠞⠀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⡀⠙⡏⠀⠈⠇⠀⠀⠀ ⠀⠀⢀⣆⠤⠤⠾⠿⢛⣛⣛⡛⠛⠛⠛⠛⠛⠛⢛⣛⣛⡛⠿⠿⠤⠤⣸⡀⠀⠀ ⠀⠸⣁⠀⠀⢰⠊⠉⠀⣀⣤⣤⣀⠀⠀⠀⠀⢀⣤⣤⣀⠀⠉⠑⡆⠀⠀⣈⡇⠀ ⠀⠀⠸⡍⠓⢺⠀⠀⣾⣿⣿⣿⣿⣧⠀⠀⣴⣿⣿⣿⣿⣷⡀⠀⡗⠚⠉⠇⠀⠀
+        ⠀⠀⠀⣇⠀⠀⢇⠀⣿⣿⣿⣿⣿⣿⠀⠀⢿⣿⣿⣿⣿⣿⠃⢰⠃⠀⢸⠀⠀⠀ ⠀⠀⠀⠸⡄⠀⠈⢦⡈⠛⠿⠿⠛⠁⣤⣤⠈⠛⠻⠿⠛⠁⡰⠃⠀⢀⠇⠀⠀⠀ ⠀⠀⠀⠀⠙⣄⣠⠞⠙⢦⡀⠀⠀⠀⠛⠛⠀⠀⠀⢀⡠⠊⠳⣄⣠⠎⠀⠀⠀⠀ ⠀⠀⠀⠀⢀⠜⠁⢀⡴⠋⣸⡕⢲⠤⠤⠤⠤⡖⢊⣯⠙⢦⡀⠈⠣⡀⠀⠀⠀⠀ ⢀⠀⣀⠔⠁⢀⠔⠁⠙⠲⢿⢌⡟⠂⠸⠇⠐⢻⡡⡿⠖⠊⠉⠢⡀⠈⠢⣀⠀⡀ ⢇⡀⠀⠀⡔⠁⠀⠀⠀⠀⠈⢆⠉⠁⠘⠃⠈⠉⡠⠃⠀⠀⠀⠀⠈⢢⠀⠀⠀⡸ ⠀⠈⢆⣀⠄⠀⠀⠀⠀⠀⠀⠀⠙⠒⠠⠄⠒⠊⠀⠀⠀⠀⠀⠀⠀⠠⣀⡠⠁⠀
+    </p>
+    <img src="images/biblioteca.jpg" alt="Imagem genérica de uma biblioteca" style="width: 100%; max-width: 300px;">
+    <p>1) Selecione o Tipo de Usuário (BIBLIOTECÁRI@ ou CLIENTE)</p>
+    <p>2) Faça o upload da sua chave privada para prosseguir!</p>
+    <form id="login-form">
+        <label>
+            <input type="radio" name="userType" value="bibliotecario" required>
+            BIBLIOTECÁRIO(A)
+        </label>
+        <label>
+            <input type="radio" name="userType" value="cliente" required>
+            CLIENTE
+        </label>
+        <input type="file" id="privateKeyFile" accept=".pem" required>
+        <button type="submit">Login</button>
+    </form>
+    <div id="http-messages" class="http-messages"></div>
+    <script src="https://cdn.jsdelivr.net/npm/node-forge/dist/forge.min.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const ws = new WebSocket(`ws://${window.location.host}`);
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'http') {
+                const message = data.message;
+                const messageElement = document.createElement('p');
+                messageElement.textContent = message;
+                document.getElementById('http-messages').appendChild(messageElement);
+            } else if (data.type === 'websocket') {
+                // Atualize a seção lateral com mensagens do WebSocket, se necessário
+            }
+        };
+    </script>
+</body>
+
+</html>

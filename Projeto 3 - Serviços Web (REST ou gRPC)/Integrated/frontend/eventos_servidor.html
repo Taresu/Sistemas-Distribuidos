@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eventos SSE</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .event-container {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            overflow: hidden;
+            /* Garante que o conteúdo não ultrapasse o container */
+        }
+        
+        .event-message {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .event-details {
+            margin-left: 20px;
+            font-size: 0.9em;
+            overflow: hidden;
+            /* Evita que os detalhes ultrapassem o container */
+        }
+        
+        .event-details p {
+            margin: 0;
+            /* Remove margens padrão */
+        }
+        
+        .event-time {
+            color: #666;
+            font-size: 0.8em;
+        }
+        
+        #events {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 20px;
+            /* Adiciona espaço para a barra de rolagem */
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Eventos do Servidor</h1>
+    <div id="events"></div>
+    <script>
+        const eventSource = new EventSource('/stream');
+        let eventNumber = 0; // Armazena o número do evento atual
+
+        eventSource.onmessage = function(event) {
+            const eventData = JSON.parse(event.data);
+            const eventContainer = document.createElement("div");
+            eventContainer.classList.add("event-container");
+
+            eventNumber++; // Incrementa o número do evento
+            const eventMessage = document.createElement("div");
+            eventMessage.classList.add("event-message");
+            eventMessage.textContent = `Evento ${eventNumber}`; // Usa o número do evento atual
+
+            const eventDetails = document.createElement("div");
+            eventDetails.classList.add("event-details");
+            if (eventData.type !== undefined) {
+                const eventType = document.createElement("p");
+                eventType.innerHTML = `<strong>Tipo:</strong> ${eventData.type}`;
+                eventDetails.appendChild(eventType);
+            }
+            if (eventData.data !== undefined) {
+                const eventDataParagraph = document.createElement("p");
+                eventDataParagraph.innerHTML = `<strong>Data:</strong> ${eventData.data}`;
+                eventDetails.appendChild(eventDataParagraph);
+            }
+
+            const eventTime = document.createElement("div");
+            eventTime.classList.add("event-time");
+            const eventDate = new Date();
+            eventTime.textContent = `Hora: ${eventDate.toLocaleTimeString()}`;
+
+            eventContainer.appendChild(eventMessage);
+            eventContainer.appendChild(eventDetails);
+            eventContainer.appendChild(eventTime);
+
+            document.getElementById("events").appendChild(eventContainer);
+        };
+
+        eventSource.onerror = function(event) {
+            console.error("Erro na conexão SSE:", event);
+        };
+
+        eventSource.onopen = function(event) {
+            console.log("Conexão SSE aberta:", event);
+        };
+    </script>
+</body>
+
+</html>

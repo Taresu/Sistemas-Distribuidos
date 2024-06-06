@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edição do Banco de Dados</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            background: linear-gradient(to bottom, #8e44ad, #3498db);
+        }
+        
+        .debug-panel {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 300px;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 20px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+        
+        .debug-panel h2 {
+            margin-top: 0;
+        }
+        
+        .debug-panel p {
+            font-size: 14px;
+            word-wrap: break-word;
+        }
+        
+        .back-button {
+            margin-top: 20px;
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #ef665c;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .back-button:hover {
+            background-color: #f31f1f;
+        }
+        
+        #livro-form {
+            margin-bottom: 20px;
+        }
+        
+        #lista-livros {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        #lista-livros li {
+            margin-bottom: 10px;
+        }
+        
+        .delete-button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            background-color: #d9534f;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .delete-button:hover {
+            background-color: #c9302c;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Edição do Banco de Dados (PostgreSQL) </h1>
+    <p> Acesse o banco diretamente com pgadmin4 no link:
+        <a href="http://localhost:5050/browser">
+            <img id="db_postgres" src="images/db_postgres.svg" alt="Imagem representativa de edição de banco de dados de livros" style="width: 100%; max-width: 150px;">
+        </a>
+        <div class="debug-panel" id="debug-panel">
+            <h2>Debug Panel</h2>
+        </div>
+        <h1> Adicionar Livros </h1>
+        <form id="livro-form">
+            <label for="titulo">Título:</label><br>
+            <input type="text" id="titulo" name="titulo" required><br>
+            <label for="autor">Autor:</label><br>
+            <input type="text" id="autor" name="autor" required><br>
+            <label for="editora">Editora:</label><br>
+            <input type="text" id="editora" name="editora"><br><br>
+            <button type="submit">Adicionar Livro</button>
+        </form>
+        <h1> Tabela "Livros" </h1>
+        <ul id="lista-livros"></ul>
+        <li>
+            <span>${livro.titulo} - ${livro.autor} (${livro.editora})</span>
+            <button class="edit-button">Editar</button>
+            <form class="edit-form" style="display: none;">
+                <input type="text" class="edit-titulo" value="${livro.titulo}">
+                <input type="text" class="edit-autor" value="${livro.autor}">
+                <input type="text" class="edit-editora" value="${livro.editora}">
+                <button type="submit">Salvar</button>
+            </form>
+        </li>
+        <a href="index.html" class="back-button">Voltar</a>
+        <a href="eventos_servidor.html" class="back-button">Eventos do Servidor (SSE)</a>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const form = document.getElementById('livro-form');
+                const listaLivros = document.getElementById('lista-livros');
+
+                form.addEventListener('submit', async(event) => {
+                    event.preventDefault();
+
+                    const titulo = document.getElementById('titulo').value;
+                    const autor = document.getElementById('autor').value;
+                    const editora = document.getElementById('editora').value;
+
+                    try {
+                        const response = await fetch('http://localhost:3500/livros', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                titulo,
+                                autor,
+                                editora
+                            })
+                        });
+                        const data = await response.json();
+                        if (response.ok) {
+                            alert(data.message);
+                            carregarLivros(); // Atualiza a lista de livros
+                        } else {
+                            alert('Erro: ' + data.message);
+                        }
+                    } catch (error) {
+                        console.error('Erro ao adicionar livro:', error);
+                    }
+                });
+
+                async function carregarLivros() {
+                    try {
+                        const response = await fetch('http://localhost:3500/livros');
+                        const data = await response.json();
+                        // Verifique se 'data' é um array
+                        if (Array.isArray(data)) {
+                            listaLivros.innerHTML = '';
+                            const reversedData = data.slice(-10).reverse(); // Pegue apenas os últimos 10 e inverta a ordem
+                            reversedData.forEach(livro => {
+                                const li = document.createElement('li');
+                                const deleteButton = document.createElement('button');
+                                deleteButton.textContent = 'X';
+                                deleteButton.className = 'delete-button';
+                                deleteButton.addEventListener('click', async() => {
+                                    try {
+                                        const response = await fetch(`http://localhost:3500/livros/${livro.id}`, {
+                                            method: 'DELETE'
+                                        });
+                                        const deleteData = await response.json();
+                                        if (response.ok) {
+                                            alert(deleteData.message);
+                                            carregarLivros(); // Atualiza a lista de livros após excluir
+                                        } else {
+                                            alert('Erro ao excluir livro: ' + deleteData.message);
+                                        }
+                                    } catch (error) {
+                                        console.error('Erro ao excluir livro:', error);
+                                    }
+                                });
+                                li.textContent = `${livro.titulo} - ${livro.autor} (${livro.editora}) `;
+                                li.appendChild(deleteButton);
+                                listaLivros.appendChild(li);
+                            });
+                        } else {
+                            console.error('Erro: a resposta não é um array.', data);
+                        }
+                    } catch (error) {
+                        console.error('Erro ao carregar livros:', error);
+                    }
+                }
+
+                // Carrega os livros ao iniciar a página
+                carregarLivros();
+            });
+        </script>
+</body>
+
+</html>

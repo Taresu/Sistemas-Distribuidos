@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Acompanhamento do Banco</title>
 </head>
+
 <body>
     <h1>Eventos do Servidor</h1>
     <div id="events"></div>
+    <link rel="stylesheet" href="css/styles.css">
     <script>
         const eventSource = new EventSource('http://localhost:5000/stream');
-        
+
         eventSource.onmessage = function(event) {
             const newElement = document.createElement("div");
             const data = JSON.parse(event.data);
@@ -17,14 +20,15 @@
             newElement.innerHTML = "Novo evento: " + message;
             document.getElementById("events").appendChild(newElement);
         };
-        
+
         eventSource.onerror = function(event) {
             console.error("Erro na conexão SSE:", event);
         };
-        
+
         eventSource.onopen = function(event) {
             console.log("Conexão SSE aberta:", event);
         };
     </script>
 </body>
+
 </html>
