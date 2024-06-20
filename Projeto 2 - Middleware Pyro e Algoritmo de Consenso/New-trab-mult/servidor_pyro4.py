@@ -21,11 +21,9 @@ class ServidorRaft:
         self.commitado = False
         self.contador_confrimacao = 0
         self.uri = None
-        self.ns = Pyro5.core.locate_ns(host='localhost', port=40982)
 
     def iniciar_servidor(self, uri, port):
         self.uri = uri
-        self.ns.register(f"servidor{self.id}", self.uri)
         sleep(10)
         print(f"Servidor {self.id} iniciado na porta {port}.")
         self.eleicao_threads(False)
@@ -35,9 +33,10 @@ class ServidorRaft:
             self.tempo_eleicao.cancel()
         timeout = random.uniform(10.0, 20.0)
         if heartbeat:
+            print(f"SErvidor {self.id} recebeu heartbeat")
             pass
         else:
-            print(f"SErvidor {self.id} Novo Timeout: {timeout} segundos")
+            print(f"SErvidor {self.id}, {self.status} Novo Timeout: {timeout} segundos")
         self.tempo_eleicao = threading.Timer(timeout, self.iniciar_eleicao)
         self.tempo_eleicao.start()
 
@@ -63,14 +62,23 @@ class ServidorRaft:
 
     def virar_lider(self):
         if self.status == "CANDIDATO":
+            ns = Pyro5.api.locate_ns(host='localhost', port=40982)
+            registros_ns = ns.list()
+            if "servidorLider" in registros_ns:
+                ns.remove("ServidorLider")
+            ns.register("ServidorLider",self.uri)
             self.status = "LIDER"
             self.lider = self.id
             self.votou_no_serv = None
             self.votos_recebidos = 0
             print(f"Servidor {self.id} virou lider! Termo: {self.termo_atual}.")
-            #.enviar_heartbeat()
-            threading.Timer(8, self.enviar_heartbeat).start()
-            
+            i = 0
+            while (i < 9):
+                if self.status != "LIDER":
+                    break
+                threading.Timer(2, self.enviar_heartbeat).start()
+                sleep(5)
+                i= i + 1 
 
     def enviar_heartbeat(self):
         for conexao in self.conexoes:
@@ -83,23 +91,23 @@ class ServidorRaft:
                     pass
 
 
-    def receber_entradas_log(self, termo, id_lider, entrada_log, indice_commit):
-        self.eleicao_threads(True)
-        if indice_commit > self.ind_commit:
-            self.ind_commit = indice_commit
-            print(f"Servidor {self.id} comitou log com indice {indice_commit}!")
-        if termo >= self.termo_atual:
-            self.termo_atual = termo
-            self.status = "SEGUIDOR"
-            self.lider = id_lider
-            self.votou_no_serv = None
-            self.votos_recebidos = 0
-            for log in entrada_log:
-                if len(self.losg) < log['index'] or self.losg[log['index'] - 1]['term']:
-                    self.losg = self.losg[:log['index'] - 1] + [log]
-                    print(f"Servidor {self.id}: Atualizados logs! Índice {log['index']}! Termo: {log['term']}, comando: {log['command']}.")
-            return True
-        return False
+    # def receber_entradas_log(self, termo, id_lider, entrada_log, indice_commit):
+    #     self.eleicao_threads(True)
+    #     if indice_commit > self.ind_commit:
+    #         self.ind_commit = indice_commit
+    #         print(f"Servidor {self.id} comitou log com indice {indice_commit}!")
+    #     if termo >= self.termo_atual:
+    #         self.termo_atual = termo
+    #         self.status = "SEGUIDOR"
+    #         self.lider = id_lider
+    #         self.votou_no_serv = None
+    #         self.votos_recebidos = 0
+    #         for log in entrada_log:
+    #             if len(self.losg) < log['index'] or self.losg[log['index'] - 1]['term']:
+    #                 self.losg = self.losg[:log['index'] - 1] + [log]
+    #                 print(f"Servidor {self.id}: Atualizados logs! Índice {log['index']}! Termo: {log['term']}, comando: {log['command']}.")
+    #         return True
+    #     return False
 
     def pedir_voto(self, uri):
         try:
@@ -119,6 +127,8 @@ class ServidorRaft:
 
     @Pyro5.api.expose
     def votar(self, termo, candidato):
+        if self.status == "LIDER":
+            self.status == "SEGUIDOR"
         self.eleicao_threads(False)
         if termo > self.termo_atual:
             self.termo_atual = termo
