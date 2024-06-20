@@ -61,10 +61,10 @@ class ServidorRaft:
     def virar_lider(self):
         if self.status == "CANDIDATO":
             ns = Pyro5.api.locate_ns(host='localhost', port=40982)
-            registros_ns = ns.list()
-            if "servidorLider" in registros_ns:
-                ns.remove()
-            ns.register("ServidorLider",self.uri)
+            # registros_ns = ns.list()
+            # if "servidorLider" in registros_ns:
+            #     ns.remove("servidorLider")
+            ns.register("servidorLider",self.uri)
             self.status = "LIDER"
             self.lider = self.id
             self.votou_no_serv = None
@@ -74,6 +74,7 @@ class ServidorRaft:
             while (i < 9):
                 if self.status != "LIDER":
                     break
+                sleep(5)
                 threading.Timer(2, self.enviar_heartbeat).start()
                 i= i + 1 
 
@@ -86,25 +87,6 @@ class ServidorRaft:
             except Exception as e:
                 print(f"Erro de envio de heartbeat: {e}.")
                 pass
-
-
-    def receber_entradas_log(self, termo, id_lider, entrada_log, indice_commit):
-        self.eleicao_threads(True)
-        if indice_commit > self.ind_commit:
-            self.ind_commit = indice_commit
-            print(f"Servidor {self.id} comitou log com indice {indice_commit}!")
-        if termo >= self.termo_atual:
-            self.termo_atual = termo
-            self.status = "SEGUIDOR"
-            self.lider = id_lider
-            self.votou_no_serv = None
-            self.votos_recebidos = 0
-            for log in entrada_log:
-                if len(self.losg) < log['index'] or self.losg[log['index'] - 1]['term']:
-                    self.losg = self.losg[:log['index'] - 1] + [log]
-                    print(f"Servidor {self.id}: Atualizados logs! Índice {log['index']}! Termo: {log['term']}, comando: {log['command']}.")
-            return True
-        return False
 
     def pedir_voto(self, uri):
         try:
@@ -152,15 +134,14 @@ class ServidorRaft:
                 self.contador_confrimacao = 1
                 for conexao in self.conexoes.values():
                     threading.Thread(target=self.replicar_log, args=(self.losg, conexao)).start()
-                print(f"Servidor {self.id} registrou um comando: {comando[0]['command']} ")
-
-    @Pyro5.api.expose
+                print(f"Servidor {self.id} registrou um comando: {comando[0]['command']} ")    @Pyro5.api.expose
+    
     def replicar_log(self, log, conexao):
         try:
             proxy = Pyro5.api.Proxy(conexao)
-            proxy._pyroTimeout = 15
+            proxy._pyroTimeout = 5
             print(f"Servidor {self.id} Enviou log para {conexao}")
-            confirmacao = proxy.append_entries(self.termo_atual, self.lider, log, self.ind_commit)
+            confirmacao = proxy.receber_registro(self.termo_atual, log, self.ind_commit)
             if confirmacao:
                 print(f"Servidor {self.id} Recebeu confirmacao de {conexao}")
                 self.contador_confrimacao = self.contador_confrimacao + 1
@@ -170,9 +151,22 @@ class ServidorRaft:
                     self.comitado = True
         except Exception as e:
             print(f"Servidor {self.id} Falha no envio dos logspara {conexao}")
-
-    def tempo_limite_eleicao(self):
-        return random.uniform(1, 2)
+            
+    def receber_registro(self, termo, entrada_log, indice_commit):
+        # self.eleicao_threads(True)
+        if indice_commit > self.ind_commit:
+            self.ind_commit = indice_commit
+            print(f"Servidor {self.id} comitou log com indice {indice_commit}!")
+        if termo >= self.termo_atual:
+            self.termo_atual = termo
+            self.votou_no_serv = None
+            self.votos_recebidos = 0
+            for log in entrada_log:
+                if len(self.losg) < log['index'] or self.losg[log['index'] - 1]['term']:
+                    self.losg = self.losg[:log['index'] - 1] + [log]
+                    print(f"Servidor {self.id}: Atualizados logs! Índice {log['index']}! Termo: {log['term']}, comando: {log['command']}.")
+            return True
+        return False
 
 if __name__ == "__main__":
     try:

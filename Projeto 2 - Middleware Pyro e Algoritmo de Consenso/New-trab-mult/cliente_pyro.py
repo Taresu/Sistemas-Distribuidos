@@ -3,7 +3,7 @@ import time
 import Pyro5.api
 
 
-def encaminhar_comando(self, comando):
+def encaminhar_comando(comando):
     ns = Pyro5.api.locate_ns(host='localhost', port=40982)
     
     try:
@@ -14,10 +14,7 @@ def encaminhar_comando(self, comando):
         print(f"Não há líder para encaminhar o comando. ERRO: {e}")
 
 if __name__ == "__main__":
-    try:
         while True:
             comando = input("Digite um comando para enviar ao líder: ")
             encaminhar_comando(comando)
             time.sleep(1)
-    except Exception as e:
-        print(f"Erro: {e}")
