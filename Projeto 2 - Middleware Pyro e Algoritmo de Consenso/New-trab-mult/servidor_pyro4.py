@@ -31,7 +31,7 @@ class ServidorRaft:
     def eleicao_threads(self, heartbeat):
         if self.tempo_eleicao:
             self.tempo_eleicao.cancel()
-        timeout = random.uniform(10.0, 20.0)
+        timeout = 10.0 #  random.uniform(10.0, 20.0)
         if heartbeat:
             print(f"SErvidor {self.id} recebeu heartbeat")
             pass
@@ -127,44 +127,38 @@ class ServidorRaft:
     @Pyro5.api.expose
     def registrar_comando(self, comando):
         if self.status == "LIDER":
+            self.losg.append(comando)
             if comando:
                 self.comitou = False
-                self.losg.extend(comando)
                 self.contador_confrimacao = 1
-                for conexao in self.conexoes.values():
-                    threading.Thread(target=self.replicar_log, args=(self.losg, conexao)).start()
+                self.replicar_log(comando)
                 print(f"Servidor {self.id} registrou um comando: {comando} ")
     
     @Pyro5.api.expose
-    def replicar_log(self, log, conexao):
+    def replicar_log(self, comando):
         try:
-            proxy = Pyro5.api.Proxy(conexao)
-            proxy._pyroTimeout = 5
-            print(f"Servidor {self.id} Enviou log para {conexao}")
-            confirmacao = proxy.receber_registro(self.termo_atual, log, self.ind_commit)
-            if confirmacao:
-                print(f"Servidor {self.id} Recebeu confirmacao de {conexao}")
-                self.contador_confrimacao = self.contador_confrimacao + 1
-                if self.contador_confrimacao > (((len(self.conexoes) + 1) / 2) and not self.comitou) :
-                    self.ind_commit = log[len(log) - 1]['index']
-                    print(f"Servidor {self.id} Log índice {self.ind_commit} comitado")
-                    self.comitado = True
+            for conexao in self.conexoes.values():
+                proxy = Pyro5.api.Proxy(conexao)
+                proxy._pyroTimeout = 5
+                print(f"Servidor {self.id} Enviou log para {conexao}")
+                confirmacao = proxy.receber_registro(self.termo_atual, comando, self.ind_commit)
+                if confirmacao:
+                    print(f"Servidor {self.id} Recebeu confirmacao de {conexao}")
+                    self.contador_confrimacao = self.contador_confrimacao + 1
+                    if self.contador_confrimacao > (((len(self.conexoes) + 1) / 2) and not self.comitou) :
+                        print(f"Servidor {self.id} Log índice {self.ind_commit} comitado")
+                        self.comitado = True
         except Exception as e:
             print(f"Servidor {self.id} Falha no envio dos logspara {conexao}")
             
-    def receber_registro(self, termo, entrada_log, indice_commit):
+    def receber_registro(self, termo, entrada, indice_commit):
         # self.eleicao_threads(True)
         if indice_commit > self.ind_commit:
             self.ind_commit = indice_commit
             print(f"Servidor {self.id} comitou log com indice {indice_commit}!")
         if termo >= self.termo_atual:
             self.termo_atual = termo
-            self.votou_no_serv = None
-            self.votos_recebidos = 0
-            for log in entrada_log:
-                if len(self.losg) < log['index'] or self.losg[log['index'] - 1]['term']:
-                    self.losg = self.losg[:log['index'] - 1] + [log]
-                    print(f"Servidor {self.id}: Atualizados logs! Índice {log['index']}! Termo: {log['term']}, comando: {log['command']}.")
+            self.losg = entrada
             return True
         return False
 

@@ -16,5 +16,7 @@ def encaminhar_comando(comando):
 if __name__ == "__main__":
         while True:
             comando = input("Digite um comando para enviar ao líder: ")
-            encaminhar_comando(comando)
+            lista_comando = []
+            lista_comando.extend(comando)
+            encaminhar_comando(lista_comando)
             time.sleep(1)
