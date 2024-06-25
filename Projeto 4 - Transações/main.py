@@ -15,6 +15,17 @@ class SistemaComercioMonolitico:
                                 id INTEGER PRIMARY KEY,
                                 nome_produto TEXT,
                                 quantidade INTEGER)''')
+        produtos = [
+            ('Samsung S3000', 50),
+            ('iPhone 79', 30),
+            ('Xiaomi SuperMegaBlaster', 25),
+            ('Positivo One', 20),
+            ('Nokia Brick Xtreme', 10)
+        ]
+
+        # Inserir os produtos na tabela estoque
+        self.cursor.executemany('INSERT INTO estoque (nome_produto, quantidade) VALUES (?, ?)', produtos)
+
         self.cursor.execute('''CREATE TABLE IF NOT EXISTS pagamentos (
                                 id INTEGER PRIMARY KEY,
                                 id_pedido INTEGER,
@@ -63,10 +74,10 @@ class SistemaComercioMonolitico:
         self.cursor.execute("INSERT INTO pagamentos (id_pedido, valor) VALUES (?, ?)", (self.id_pedido, valor))
 
     def enviar_pedido(self):
-        self.cursor.execute("INSERT INTO envio (id_pedido, status) VALUES (?, 'enviado')")
+        self.cursor.execute("INSERT INTO envio (id_pedido, status) VALUES (?, 'enviado')", (self.id_pedido,))
 
 
 # Uso
 caminho_bd = 'comercio_monolitico.db'
 sistema = SistemaComercioMonolitico(caminho_bd)
-sistema.realizar_pedido('produto1', 2, 100.0)
+sistema.realizar_pedido('iPhone 79', 2, 100.0)
