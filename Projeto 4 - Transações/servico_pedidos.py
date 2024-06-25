@@ -17,23 +17,24 @@ class ServicoPedidos:
             'nome_produto': nome_produto,
             'quantidade': quantidade,
             'valor': valor,
-            'status': 'criado'
+            'status': 'pedido_criado'
         }
         self.canal.basic_publish(exchange='', routing_key='fila_pedidos', body=json.dumps(pedido))
-        print("Pedido realizado")
+        print("Pedido realizado e enviado para processamento.")
 
     def ouvir_eventos(self):
         self.canal.basic_consume(queue='fila_pedidos', on_message_callback=self.tratar_evento_pedido, auto_ack=True)
+        print("Aguardando eventos de pedidos...")
         self.canal.start_consuming()
 
     def tratar_evento_pedido(self, ch, method, properties, body):
         pedido = json.loads(body)
-        print("Evento de pedido recebido", pedido)
+        print("Evento de pedido recebido:", pedido)
+        pedido['status'] = 'estoque_atualizado'
         self.canal.basic_publish(exchange='', routing_key='fila_estoque', body=json.dumps(pedido))
-        self.canal.basic_publish(exchange='', routing_key='fila_pagamentos', body=json.dumps(pedido))
-        self.canal.basic_publish(exchange='', routing_key='fila_envio', body=json.dumps(pedido))
 
 # Executar serviço de pedidos
-servico_pedidos = ServicoPedidos()
-servico_pedidos.realizar_pedido('produto1', 2, 100.0)
-servico_pedidos.ouvir_eventos()
+if __name__ == '__main__':
+    servico_pedidos = ServicoPedidos()
+    servico_pedidos.realizar_pedido('produto1', 2, 100.0)
+    servico_pedidos.ouvir_eventos()

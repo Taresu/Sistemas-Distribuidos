@@ -10,6 +10,10 @@ Implementação de Microsserviços com SAGA
 
 Vamos implementar cada serviço como um processo independente que se comunica via eventos. Utilizaremos o RabbitMQ como sistema de mensagens.
 
+O arquivo **orquestracao.py** iniciará os serviços de Pedidos, Estoque, Pagamentos e Envio na ordem correta e manterá a execução contínua para receber eventos e processá-los.
+
+Cada serviço irá ouvir sua respectiva fila e processar os eventos de forma independente. A comunicação entre os serviços é feita através de mensagens publicadas nas filas do RabbitMQ, seguindo o padrão SAGA para garantir a consistência dos dados.
+
 ---
 
 # Observações
