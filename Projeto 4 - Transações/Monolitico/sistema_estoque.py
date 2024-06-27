@@ -26,6 +26,7 @@ class SistemaEstoque():
 
         # Inserir os produtos na tabela estoque
         self.cursor.executemany('INSERT INTO estoque (nome_produto, quantidade, valor) VALUES (?, ?, ?)', produtos)
+        self.conn.commit()
     
     def imprimir_produtos(self):
         self.cursor.execute("SELECT nome_produto, quantidade, valor FROM estoque")
@@ -35,20 +36,28 @@ class SistemaEstoque():
             print(f"{produto[0]}  |  {produto[1]}  |  R$ {produto[2]},00")
         
     def reservar_estoque(self, nome_produto, quantidade):
-        self.cursor.execute("SELECT quantidade FROM estoque WHERE nome_produto = ?", (nome_produto,))
+        self.cursor.execute("SELECT quantidade, valor FROM estoque WHERE nome_produto = ?", (nome_produto,))
         resultado = self.cursor.fetchone()
         if resultado is None:
             print ("Produto Inexistente") 
             return False     
-        self.quantidadeReservada = resultado[0]
-        if self.quantidadeReservada < quantidade:
+        self.quantidade = resultado[0]
+        if self.quantidade < int(quantidade):
             print ("Estoque insuficiente")
             return False
+        valor = resultado[1]
         self.produto = nome_produto
-        self.quantidade = quantidade
-        return True
+        self.quantidadeReservada = int(quantidade)
+        return (True, valor)
             
     def atualizar_estoque(self):
         self.quantidade = self.quantidade - self.quantidadeReservada
+        self.conn.execute('BEGIN')
         self.cursor.execute("UPDATE estoque SET quantidade = ? WHERE nome_produto = ?", (self.quantidade, self.produto))
+        self.conn.commit()
+        
+    def rollback_estoque(self):
+        self.produto = None
+        self.quantidadeTotal = None
+        self.quantidadeReservada = None
         
