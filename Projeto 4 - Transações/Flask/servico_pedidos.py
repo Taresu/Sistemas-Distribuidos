@@ -5,6 +5,10 @@ from flask import Flask, jsonify, request
 app = Flask(__name__)
 pedidos = {}
 
+@app.route('/')
+def pagina_pedidos():
+    
+
 @app.route('/pedido', methods=['POST'])
 def criar_pedido():
     dados = request.json
