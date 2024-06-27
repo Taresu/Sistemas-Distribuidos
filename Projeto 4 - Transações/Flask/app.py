@@ -1,33 +1,34 @@
-import requests
+import json
+import socket
+
+from db import SistemaComercioEletronico as banco_comercio
 from flask import Flask, flash, redirect, render_template, request, url_for
 
 app = Flask(__name__)
 app.secret_key = 'segredo'
 
-def chamar_servico(url, dados):
-    response = requests.post(url, json=dados)
-    if response.status_code != 200:
-        raise Exception(f"Erro ao chamar serviço: {url}")
-    return response.json()
+def chamar_servico(port, endpoint, dados):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect(('localhost', port))
+        mensagem = f"POST {endpoint} {json.dumps(dados)}"
+        s.sendall(mensagem.encode('utf-8'))
+        response = s.recv(1024)
+    return json.loads(response.decode('utf-8'))
 
 def orquestrar_pedido(pedido):
     try:
-        # Chama o serviço de pedidos
         print("Chamando serviço de pedidos...")
-        resposta_pedidos = chamar_servico('http://localhost:5001/pedido', pedido)
+        resposta_pedidos = chamar_servico(5001, '/pedido', pedido) 
         pedido['id_pedido'] = resposta_pedidos['id_pedido']
 
-        # Chama o serviço de estoque
         print("Chamando serviço de estoque...")
-        resposta_estoque = chamar_servico('http://localhost:5002/estoque', pedido)
+        resposta_estoque = chamar_servico(5002, '/estoque', pedido) 
 
-        # Chama o serviço de pagamentos
         print("Chamando serviço de pagamentos...")
-        resposta_pagamento = chamar_servico('http://localhost:5003/pagamento', pedido)
+        resposta_pagamento = chamar_servico(5003, '/pagamento', pedido) 
 
-        # Chama o serviço de envio
         print("Chamando serviço de envio...")
-        resposta_envio = chamar_servico('http://localhost:5004/envio', pedido)
+        resposta_envio = chamar_servico(5004, '/envio', pedido) 
 
         flash("Pedido processado com sucesso!")
     except Exception as e:
@@ -36,28 +37,27 @@ def orquestrar_pedido(pedido):
         rollback(pedido)
 
 def rollback(pedido):
-    # Chama os serviços de rollback em ordem inversa
     try:
         print("Revertendo envio...")
-        chamar_servico('http://localhost:5004/rollback_envio', pedido)
+        chamar_servico(5004, '/rollback_envio', pedido)
     except Exception as e:
         print(f"Erro ao reverter envio: {e}")
 
     try:
         print("Revertendo pagamento...")
-        chamar_servico('http://localhost:5003/rollback_pagamento', pedido)
+        chamar_servico(5003, '/rollback_pagamento', pedido)
     except Exception as e:
         print(f"Erro ao reverter pagamento: {e}")
 
     try:
         print("Revertendo estoque...")
-        chamar_servico('http://localhost:5002/rollback_estoque', pedido)
+        chamar_servico(5002, '/rollback_estoque', pedido)
     except Exception as e:
         print(f"Erro ao reverter estoque: {e}")
 
     try:
         print("Revertendo pedido...")
-        chamar_servico('http://localhost:5001/rollback_pedido', pedido)
+        chamar_servico(5001, '/rollback_pedido', pedido)
     except Exception as e:
         print(f"Erro ao reverter pedido: {e}")
 
@@ -82,3 +82,4 @@ def processar_pedido():
 
 if __name__ == '__main__':
     app.run(port=5000)
+    banco_comercio.criar_tabelas()

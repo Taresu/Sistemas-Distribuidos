@@ -1,24 +1,35 @@
-from flask import Flask, jsonify, request
+import json
+import socket
 
-app = Flask(__name__)
-envios = {}
+from db import SistemaComercioEletronico as banco_comercio
 
-@app.route('/envio', methods=['POST'])
-def processar_envio():
-    dados = request.json
-    id_pedido = dados['id_pedido']
-    envios[id_pedido] = dados
-    print(f"Envio processado para o pedido: {id_pedido}")
-    return '', 200
 
-@app.route('/rollback_envio', methods=['POST'])
-def rollback_envio():
-    dados = request.json
-    id_pedido = dados.get('id_pedido')
-    if id_pedido in envios:
-        del envios[id_pedido]
-        print(f"Rollback realizado para o envio do pedido: {id_pedido}")
-    return '', 200
+def processar_envio(data):
+    pedido = json.loads(data)
+    envios.append(pedido)
+    return json.dumps({'status': 'Envio processado'})
+
+def rollback_envio(data):
+    pedido = json.loads(data)
+    envios.remove(next(e for e in envios if e['id_pedido'] == pedido['id_pedido']))
+    return json.dumps({'status': 'Rolled back'})
+
+def start_server():
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind(('localhost', 5004))
+    server_socket.listen(5)
+    print("Serviço de Envio escutando na porta 5004...")
+    
+    while True:
+        client_socket, addr = server_socket.accept()
+        data = client_socket.recv(1024).decode('utf-8')
+        if data.startswith("POST /envio"):
+            response = processar_envio(data[len("POST /envio "):])
+        elif data.startswith("POST /rollback_envio"):
+            response = rollback_envio(data[len("POST /rollback_envio "):])
+        client_socket.send(response.encode('utf-8'))
+        client_socket.close()
 
 if __name__ == '__main__':
-    app.run(port=5004)
+    envios = []
+    start_server()

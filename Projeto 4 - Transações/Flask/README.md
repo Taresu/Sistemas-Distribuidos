@@ -6,5 +6,6 @@ Dependências:
 
 Flask (instale com **'pip install Flask'**)
 dotenv (instale com **'pip install python.dotenv'**)
-
+requests (instale com **'pip install requests'**)
+sockets (instale com **'pip install sockets'**)
 

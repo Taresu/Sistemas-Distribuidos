@@ -1,30 +1,40 @@
-from flask import Flask, jsonify, request
+import json
+import socket
 
-app = Flask(__name__)
-estoque = {}
+from db import SistemaComercioEletronico as banco_comercio
 
-@app.route('/estoque', methods=['POST'])
-def atualizar_estoque():
-    dados = request.json
-    produto = dados['nome_produto']
-    quantidade = dados['quantidade']
-    if produto not in estoque:
-        estoque[produto] = 0
-    estoque[produto] += quantidade
-    print(f"Estoque atualizado para o produto: {produto}, quantidade: {quantidade}")
-    return '', 200
 
-@app.route('/rollback_estoque', methods=['POST'])
-def rollback_estoque():
-    dados = request.json
-    produto = dados['nome_produto']
-    quantidade = dados['quantidade']
+def atualizar_estoque(data):
+    pedido = json.loads(data)
+    produto = pedido['nome_produto']
     if produto in estoque:
-        estoque[produto] -= quantidade
-        if estoque[produto] <= 0:
-            del estoque[produto]
-        print(f"Rollback realizado para o estoque do produto: {produto}, quantidade: {quantidade}")
-    return '', 200
+        estoque[produto] -= pedido['quantidade']
+    else:
+        estoque[produto] = -pedido['quantidade']
+    return json.dumps({'status': 'Estoque atualizado'})
+
+def rollback_estoque(data):
+    pedido = json.loads(data)
+    produto = pedido['nome_produto']
+    estoque[produto] += pedido['quantidade']
+    return json.dumps({'status': 'Rolled back'})
+
+def start_server():
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind(('localhost', 5002))
+    server_socket.listen(5)
+    print("Serviço de Estoque escutando na porta 5002...")
+    
+    while True:
+        client_socket, addr = server_socket.accept()
+        data = client_socket.recv(1024).decode('utf-8')
+        if data.startswith("POST /estoque"):
+            response = atualizar_estoque(data[len("POST /estoque "):])
+        elif data.startswith("POST /rollback_estoque"):
+            response = rollback_estoque(data[len("POST /rollback_estoque "):])
+        client_socket.send(response.encode('utf-8'))
+        client_socket.close()
 
 if __name__ == '__main__':
-    app.run(port=5002)
+    estoque = {}
+    start_server()

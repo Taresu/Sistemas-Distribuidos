@@ -1,25 +1,35 @@
-from flask import Flask, jsonify, request
+import json
+import socket
 
-app = Flask(__name__)
-pagamentos = {}
+from db import SistemaComercioEletronico as banco_comercio
 
-@app.route('/pagamento', methods=['POST'])
-def processar_pagamento():
-    dados = request.json
-    id_pedido = dados['id_pedido']
-    valor = dados['valor']
-    pagamentos[id_pedido] = valor
-    print(f"Pagamento processado para o pedido: {id_pedido}, valor: {valor}")
-    return '', 200
 
-@app.route('/rollback_pagamento', methods=['POST'])
-def rollback_pagamento():
-    dados = request.json
-    id_pedido = dados.get('id_pedido')
-    if id_pedido in pagamentos:
-        del pagamentos[id_pedido]
-        print(f"Rollback realizado para o pagamento do pedido: {id_pedido}")
-    return '', 200
+def processar_pagamento(data):
+    pedido = json.loads(data)
+    pagamentos.append(pedido)
+    return json.dumps({'status': 'Pagamento processado'})
+
+def rollback_pagamento(data):
+    pedido = json.loads(data)
+    pagamentos.remove(next(p for p in pagamentos if p['id_pedido'] == pedido['id_pedido']))
+    return json.dumps({'status': 'Rolled back'})
+
+def start_server():
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind(('localhost', 5003))
+    server_socket.listen(5)
+    print("Serviço de Pagamentos escutando na porta 5003...")
+    
+    while True:
+        client_socket, addr = server_socket.accept()
+        data = client_socket.recv(1024).decode('utf-8')
+        if data.startswith("POST /pagamento"):
+            response = processar_pagamento(data[len("POST /pagamento "):])
+        elif data.startswith("POST /rollback_pagamento"):
+            response = rollback_pagamento(data[len("POST /rollback_pagamento "):])
+        client_socket.send(response.encode('utf-8'))
+        client_socket.close()
 
 if __name__ == '__main__':
-    app.run(port=5003)
+    pagamentos = []
+    start_server()
