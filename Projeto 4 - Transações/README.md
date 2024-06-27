@@ -14,6 +14,12 @@ O arquivo **orquestracao.py** iniciará os serviços de Pedidos, Estoque, Pagame
 
 Cada serviço irá ouvir sua respectiva fila e processar os eventos de forma independente. A comunicação entre os serviços é feita através de mensagens publicadas nas filas do RabbitMQ, seguindo o padrão SAGA para garantir a consistência dos dados.
 
+### Compensação
+
+Em um sistema baseado no padrão SAGA, é importante lidar com falhas de transações. Se uma transação falhar, devemos reverter as operações já realizadas (chamadas de compensação) para garantir que o sistema volte a um estado consistente.
+
+Vamos ajustar nossos serviços para incluir a lógica de compensação. Adicionaremos uma fila de compensação para cada serviço e implementaremos uma lógica básica de reversão. Vou mostrar como ajustar cada serviço para lidar com a compensação.
+
 ---
 
 # Observações
